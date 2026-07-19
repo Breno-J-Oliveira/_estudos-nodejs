@@ -252,30 +252,6 @@ Cada subpasta contém:
 
 ---
 
-## Progressão para Outras Categorias
-
-```
-_estudos-logica/          _estudos-javascript/      _estudos-php/
-     │                          │                        │
-     │  Raciocínio lógico       │  Sintaxe + DOM         │  Backend + BD
-     │  Algoritmos              │  Eventos + CRUD        │  Sessões + Auth
-     │  Git + POO               │  localStorage          │  Formulários
-     │                          │                        │
-     └──────────────────────────┴────────────────────────┘
-                     │
-                     ▼
-            _estudos-nodejs/   ← ESTÁS AQUI
-            (APIs REST, Web Scraping, SQLite)
-                     │
-                     ▼
-               NexusAuth        (Microsserviço completo)
-            (NestJS + PostgreSQL + Redis + Docker)
-```
-
-> O Node.js é a ponte entre o front-end (JavaScript) e o back-end profissional (NexusAuth). Aqui aprende-se a construir servidores, bases de dados e APIs — as fundações do que o NexusAuth faz em escala enterprise.
-
----
-
 ## Roadmap — O que vem a seguir?
 
 | Meta | Estado |
