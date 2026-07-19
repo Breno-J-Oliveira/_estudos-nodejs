@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Headline Monitor Pro</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Monitor de Manchetes</h1>
+      <p>Inteligência de dados aplicada ao jornalismo em tempo real.</p>
+    </header>
+
+    <div id="status"></div>
+
+    <div class="controls">
+      <select id="portal">
+        <option value="g1">G1 - Globo</option>
+        <option value="uol">UOL - Universo Online</option>
+        <option value="cnn">CNN Brasil</option>
+      </select>
+      
+      <button onclick="coletar()" id="btnColetar">
+        <i data-lucide="zap" size="18"></i>
+        Coletar Agora
+        <div class="loader" id="loader"></div>
+      </button>
+
+      <button onclick="carregarHistorico()" class="secondary">
+        <i data-lucide="refresh-cw" size="18"></i>
+        Atualizar
+      </button>
+    </div>
+
+    <div class="news-grid" id="newsGrid">
+      </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const statusEl = document.getElementById("status");
+    const loader = document.getElementById("loader");
+    const btnColetar = document.getElementById("btnColetar");
+
+    async function coletar() {
+      const portal = document.getElementById("portal").value;
+      
+      statusEl.innerText = "Sincronizando com " + portal.toUpperCase() + "...";
+      loader.style.display = "block";
+      btnColetar.disabled = true;
+
+      try {
+        const resp = await fetch(`/api/scrape?portal=${portal}`);
+        if (!resp.ok) throw new Error();
+        
+        statusEl.innerText = "Dados coletados com sucesso.";
+        setTimeout(() => statusEl.innerText = "", 3000);
+        
+        await carregarHistorico();
+      } catch (e) {
+        statusEl.innerText = "Erro na conexão.";
+        statusEl.style.color = "var(--danger)";
+      } finally {
+        loader.style.display = "none";
+        btnColetar.disabled = false;
+      }
+    }
+
+    async function carregarHistorico() {
+      const grid = document.getElementById("newsGrid");
+      
+      try {
+        const resp = await fetch('/api/noticias');
+        const dados = await resp.json();
+        
+        if (dados.length === 0) {
+          grid.innerHTML = `<p style="text-align:center; color: var(--text-dim);">Nenhum dado monitorado ainda.</p>`;
+          return;
+        }
+
+        grid.innerHTML = dados.map((n, index) => `
+          <div class="news-card" style="animation-delay: ${index * 0.05}s">
+            <div class="news-info">
+              <h3>
+                <a href="${n.url}" target="_blank">${n.titulo}</a>
+              </h3>
+              <div class="meta">
+                <span><i data-lucide="calendar" size="12" style="vertical-align: middle"></i> ${new Date(n.data_acesso).toLocaleDateString()}</span>
+                <span><i data-lucide="clock" size="12" style="vertical-align: middle"></i> ${new Date(n.data_acesso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+              </div>
+            </div>
+            <button class="btn-delete" onclick="excluir(${n.id})" title="Excluir">
+              <i data-lucide="trash-2" size="20"></i>
+            </button>
+          </div>
+        `).join('');
+
+        lucide.createIcons();
+
+      } catch (e) {
+        console.error("Erro ao carregar histórico", e);
+      }
+    }
+
+    async function excluir(id) {
+      if(confirm("Deseja remover este registro do monitoramento?")) {
+        try {
+          await fetch(`/api/noticias/${id}`, { method: 'DELETE' });
+          carregarHistorico();
+        } catch (e) {
+          alert("Erro ao excluir.");
+        }
+      }
+    }
+
+    window.onload = carregarHistorico;
+  </script>
+</body>
+</html>

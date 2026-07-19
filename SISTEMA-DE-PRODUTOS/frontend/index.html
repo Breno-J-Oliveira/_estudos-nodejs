@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SistemX</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Inventário</h1>
+        <p style="color: var(--text-secondary);">Gerencie ativos com simplicidade e foco.</p>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span>Itens</span>
+            <strong id="totalProdutos">0</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total</span>
+            <strong id="somaPrecos">R$ 0,00</strong>
+        </div>
+        <div class="stat-card" style="border-right: none;">
+            <span>Atenção</span>
+            <strong id="estoqueBaixo">0</strong>
+        </div>
+    </div>
+
+    <section class="card-form">
+        <div class="form-grid">
+            <input type="text" id="nome" placeholder="Nome do produto">
+            <input type="number" step="0.01" id="preco" placeholder="Preço">
+            <select id="categoria">
+                <option value="Tecnologia">Tecnologia</option>
+                <option value="Software">Software</option>
+                <option value="Hardware">Hardware</option>
+            </select>
+            <input type="number" id="estoque" placeholder="Qtd">
+        </div>
+        <button class="btn-primary" onclick="cadastrarProduto()">Criar novo registro</button>
+    </section>
+
+    <div id="listaProdutos"></div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:3000/produtos";
+
+    /**
+     * Carrega e exibe a lista de produtos atualizada do servidor
+     */
+    async function listarProdutos() {
+        const lista = document.getElementById("listaProdutos");
+        try {
+            const response = await fetch(API_URL);
+            const produtos = await response.json();
+            
+            lista.innerHTML = "";
+            let soma = 0;
+            let criticos = 0;
+
+            produtos.forEach((p) => {
+                soma += (p.preco * p.estoque);
+                if(p.estoque < 5) criticos++;
+
+                const item = document.createElement("div");
+                item.className = "product-item";
+                item.innerHTML = `
+                    <span class="product-title">${p.nome}</span>
+                    <span class="badge">${p.categoria}</span>
+                    <span class="badge" style="color: ${p.estoque < 5 ? 'var(--danger)' : 'inherit'}">Stk: ${p.estoque}</span>
+                    <span class="price-value">R$ ${p.preco.toFixed(2)}</span>
+                    <div class="actions">
+                        <button onclick="editarProduto(${p.id}, '${p.nome}', ${p.preco}, '${p.categoria}', ${p.estoque})">✎</button>
+                        <button onclick="excluirProduto(${p.id})">✕</button>
+                    </div>
+                `;
+                lista.appendChild(item);
+            });
+
+            document.getElementById("totalProdutos").innerText = produtos.length;
+            document.getElementById("somaPrecos").innerText = "R$ " + soma.toLocaleString('pt-BR');
+            document.getElementById("estoqueBaixo").innerText = criticos;
+
+        } catch (e) { console.error("Erro ao listar:", e); }
+    }
+
+    /**
+     * Envia um novo produto para o backend
+     */
+    async function cadastrarProduto() {
+        const nome = document.getElementById("nome").value;
+        const preco = parseFloat(document.getElementById("preco").value);
+        const categoria = document.getElementById("categoria").value;
+        const estoque = parseInt(document.getElementById("estoque").value);
+
+        if (!nome || isNaN(preco) || isNaN(estoque)) return alert("Preencha todos os campos corretamente.");
+
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, preco, categoria, estoque })
+        });
+        
+        // Limpa os campos e recarrega
+        document.getElementById("nome").value = "";
+        document.getElementById("preco").value = "";
+        document.getElementById("estoque").value = "";
+        listarProdutos();
+    }
+
+    /**
+     * Remove um produto após confirmação
+     */
+    async function excluirProduto(id) {
+        if(confirm("Deseja realmente remover este item?")) {
+            await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+            listarProdutos();
+        }
+    }
+
+    /**
+     * Edita os dados básicos de um produto via prompt
+     */
+    async function editarProduto(id, n, p, c, e) {
+        const novoN = prompt("Novo Nome:", n) || n;
+        const novoP = prompt("Novo Preço:", p) || p;
+        const novoE = prompt("Nova Quantidade:", e) || e;
+
+        await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                nome: novoN, 
+                preco: parseFloat(novoP), 
+                categoria: c, 
+                estoque: parseInt(novoE) 
+            })
+        });
+        listarProdutos();
+    }
+
+    // Inicializa a lista ao carregar a página
+    window.addEventListener("DOMContentLoaded", listarProdutos);
+</script>
+</body>
+</html>

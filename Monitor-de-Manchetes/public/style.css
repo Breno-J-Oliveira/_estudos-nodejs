@@ -1,0 +1,205 @@
+    :root {
+      --bg-color: #050505;
+      --card-bg: #111111;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-color: #0070f3;
+      --text-main: #ffffff;
+      --text-dim: #888888;
+      --danger: #ff4d4d;
+      --radius: 12px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 60px 20px;
+    }
+
+    /* HEADER */
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      background: linear-gradient(180deg, #fff 0%, #888 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: var(--text-dim);
+      font-size: 1.1rem;
+    }
+
+    /* CONTROLS AREA */
+    .controls {
+      display: flex;
+      gap: 12px;
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 40px;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+
+    select, button {
+      background: #1a1a1a;
+      border: 1px solid var(--card-border);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    select {
+      flex: 1;
+      cursor: pointer;
+      appearance: none;
+    }
+
+    select:hover { border-color: rgba(255,255,255,0.2); }
+
+    button {
+      background: white;
+      color: black;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background: #e0e0e0;
+      transform: translateY(-2px);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: white;
+    }
+
+    button.secondary:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* FEED GRID */
+    .news-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .news-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 20px;
+      border-radius: var(--radius);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .news-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: #161616;
+      transform: scale(1.01);
+    }
+
+    .news-info {
+      flex: 1;
+    }
+
+    .news-info h3 {
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .news-info a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .news-info .meta {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-delete {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .btn-delete:hover {
+      color: var(--danger);
+      background: rgba(255, 77, 77, 0.1);
+    }
+
+    /* STATUS INDICATORS */
+    #status {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--accent-color);
+      height: 20px;
+      margin-bottom: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* LOADING SPINNER */
+    .loader {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #333;
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .controls { flex-direction: column; align-items: stretch; }
+    }
